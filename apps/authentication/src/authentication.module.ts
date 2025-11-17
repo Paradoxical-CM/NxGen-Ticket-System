@@ -1,5 +1,6 @@
 import { UserValidationModule } from '@app/guards/user-validation/user-validation.module';
-import { UserModel } from '@app/library';
+import { JwtServiceModule, UserModel } from '@app/library';
+import { UserTokenModel } from '@app/library/database/entity/user/user-token.entity';
 import { PostgressqlModule } from '@app/library/database/postgressql.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -12,9 +13,10 @@ import { AuthenticationService } from './authentication.service';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    PostgressqlModule,
+    JwtServiceModule,
     UserValidationModule,
-    TypeOrmModule.forFeature([UserModel], 'postgres'),
+    PostgressqlModule,
+    TypeOrmModule.forFeature([UserModel, UserTokenModel], 'postgres'),
   ],
   controllers: [AuthenticationController],
   providers: [AuthenticationService],

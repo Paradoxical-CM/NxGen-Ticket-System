@@ -1,10 +1,16 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 import { AuthenticationModule } from './authentication.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AuthenticationModule);
+  app.use(cookieParser());
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -17,10 +23,16 @@ async function bootstrap() {
     .setDescription('User Authentication API Document')
     .setVersion('1.0')
     .addTag('Authentication')
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('authentication', app, documentFactory);
+  SwaggerModule.setup('authentication', app, documentFactory, {
+    swaggerOptions: {
+      withCredentials: true,
+      persistAuthorization: true,
+    },
+  });
 
   await app.listen(process.env.port ?? 3000);
 }

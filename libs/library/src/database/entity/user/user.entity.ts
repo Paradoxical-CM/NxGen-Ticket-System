@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'userlist', database: 'nxgen' })
+@Entity({ database: 'nxgen' })
 export class UserModel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
