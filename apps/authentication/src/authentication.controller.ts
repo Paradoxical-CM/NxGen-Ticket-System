@@ -24,7 +24,7 @@ import { UserDto } from './dtos/user.dto';
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
-  @Post('/login')
+  @Post('login')
   @ApiBody({ type: UserDto })
   @UseGuards(UserValidation)
   async signIn(@Request() req: any, @Res({ passthrough: true }) res: Response) {
@@ -50,14 +50,14 @@ export class AuthenticationController {
     };
   }
 
-  @Get('/Hello')
+  @Get('Hello')
   @ApiBearerAuth()
   @UseGuards(JwtTokenValidation)
   hello() {
-    return 'Hello World';
+    return { message: 'Hello World' };
   }
 
-  @Post('/refresh')
+  @Post('refresh')
   @ApiBearerAuth()
   @UseGuards(JwtRefreshGuard)
   async refresh(
@@ -65,12 +65,11 @@ export class AuthenticationController {
     @Res({ passthrough: true }) res: Response,
   ) {
     if (!request.user) throw new UnauthorizedException();
-    const { id, refresh_token } = request.user as {
+    const { id } = request.user as {
       id: string;
-      refresh_token: string;
     };
     const { newAccessToken, newRefreshToken } =
-      await this.authenticationService.refresh(id, refresh_token);
+      await this.authenticationService.refreshTokens(id);
 
     res.cookie('refresh_token', newRefreshToken, {
       httpOnly: true,
@@ -78,5 +77,22 @@ export class AuthenticationController {
     });
 
     return { access_token: newAccessToken };
+  }
+
+  @Post('logout')
+  @ApiBearerAuth()
+  @UseGuards(JwtTokenValidation)
+  async logout(
+    @Req() request: expressRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = request.cookies?.refresh_token;
+    if (!refreshToken) throw new UnauthorizedException('Empty refresh token');
+
+    res.clearCookie('refresh_token');
+
+    return await this.authenticationService.invalidateRefreshToken(
+      refreshToken,
+    );
   }
 }

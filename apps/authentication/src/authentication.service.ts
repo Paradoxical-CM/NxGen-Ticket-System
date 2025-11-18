@@ -68,47 +68,47 @@ export class AuthenticationService {
     }
   }
 
-  public async refresh(user_id: string, refresh_token: string) {
-    const userToken = await this.tokenRepository.findOne({
+  public async refreshTokens(user_id: string) {
+    const tokenRecord = await this.tokenRepository.findOne({
       where: { user_uuid: user_id },
     });
-    if (!userToken?.refresh_token)
-      throw new UnauthorizedException(
-        `User UUID: ${userToken?.user_uuid} does not have a refresh token`,
-      );
-    const valid = bcrypt.compare(refresh_token, userToken?.refresh_token);
-    if (!valid)
-      throw new UnauthorizedException(
-        `User UUID: ${userToken?.user_uuid} does not have a valid refresh token`,
-      );
+
+    if (!tokenRecord?.refresh_token)
+      throw new UnauthorizedException('Empty refresh token in DB');
+
     const user = await this.userRepository.findOneBy({
-      id: userToken.user_uuid,
+      id: tokenRecord.user_uuid,
     });
+
     if (!user) throw new UnauthorizedException('User does not exist');
-    const { id, username } = user;
-    const newAccessToken = await this.jwtService.signAsync({
-      id,
-      username,
-    });
-    const newRefreshToken = await this.jwtService.signAsync(
-      { id, username },
-      {
+
+    const payload = { id: user.id, username: user.username };
+
+    const [newAccessToken, newRefreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload), // access token
+      this.jwtService.signAsync(payload, {
+        // refresh token
         expiresIn: '7d',
         algorithm: 'RS256',
-      },
-    );
+      }),
+    ]);
 
     await this.tokenRepository.update(
-      { user_uuid: id },
+      { user_uuid: user.id },
       {
         access_token: newAccessToken,
         refresh_token: newRefreshToken,
       },
     );
 
-    return {
-      newAccessToken,
-      newRefreshToken,
-    };
+    return { newAccessToken, newRefreshToken };
+  }
+
+  public async invalidateRefreshToken(refresh_token: string): Promise<object> {
+    const token = await this.tokenRepository.findOneBy({
+      refresh_token,
+    });
+    if (token) await this.tokenRepository.delete(token.user_uuid);
+    return { message: 'Logged out successfully' };
   }
 }

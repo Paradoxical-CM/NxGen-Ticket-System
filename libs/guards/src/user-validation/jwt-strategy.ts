@@ -10,11 +10,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const publicKey = fs.readFileSync('./encryption-key/public.pem', 'utf-8');
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
       secretOrKey: publicKey,
+      passReqToCallback: true,
     });
   }
-  async validate(payload: any) {
-    return await this.validation.validateAccessToken(payload.id);
+  async validate(req: Request, payload: any) {
+    const access_token: string = req.headers['authorization'].replace(
+      'Bearer ',
+      '',
+    );
+    return await this.validation.validateAccessToken(payload.id, access_token);
   }
 }

@@ -24,15 +24,24 @@ export class UserValidationService {
     }
   }
 
-  async validateAccessToken(id: string): Promise<boolean> {
-    const existingUser = await this.userRepository.findOneBy({ id });
-    if (!existingUser) return false;
-    return true;
+  async validateAccessToken(
+    id: string,
+    access_token: string,
+  ): Promise<boolean> {
+    try {
+      const record = await this.tokenRepository.findOneOrFail({
+        where: { user_uuid: id },
+        select: ['access_token'],
+      });
+      return record.access_token === access_token;
+    } catch (error) {
+      return false;
+    }
   }
 
   async validateRefreshToken(token: string, id: string): Promise<boolean> {
     const userToken = await this.tokenRepository.findOneBy({ user_uuid: id });
-    if (!userToken?.refresh_token.match(token)) return false;
+    if (!userToken || !userToken?.refresh_token.match(token)) return false;
     return true;
   }
 }
