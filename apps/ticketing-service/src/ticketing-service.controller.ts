@@ -1,5 +1,14 @@
+import { PaginationDTO } from '@app/common';
 import { JwtTokenValidation } from '@app/guards';
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  Controller,
+  Get,
+  Query,
+  Request,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { TicketingService } from './ticketing-service.service';
 
@@ -12,5 +21,16 @@ export class TicketingServiceController {
   @UseGuards(JwtTokenValidation)
   getHello(): string {
     return this.TicketingService.getHello();
+  }
+
+  @Get('ticketing-records')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiBearerAuth()
+  @UseGuards(JwtTokenValidation)
+  async getTicketingRecords(
+    @Request() req: { user: { id: string } },
+    @Query() query: PaginationDTO,
+  ) {
+    return await this.TicketingService.retrieveTickets(req.user.id, query);
   }
 }

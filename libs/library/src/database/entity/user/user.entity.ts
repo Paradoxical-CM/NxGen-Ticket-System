@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ database: 'nxgen' })
@@ -9,5 +10,10 @@ export class UserModel {
   username: string;
 
   @Column({ type: 'varchar', nullable: false })
+  @Exclude()
   password: string;
+
+  constructor(partial: Partial<UserModel>) {
+    Object.assign(this, partial);
+  }
 }

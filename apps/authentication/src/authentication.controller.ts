@@ -1,3 +1,4 @@
+import { UserDto } from '@app/common';
 import {
   JwtRefreshGuard,
   JwtTokenValidation,
@@ -18,7 +19,6 @@ import {
 import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { Request as expressRequest, Response } from 'express';
 import { AuthenticationService } from './authentication.service';
-import { UserDto } from './dtos/user.dto';
 
 @Controller('authentication')
 export class AuthenticationController {

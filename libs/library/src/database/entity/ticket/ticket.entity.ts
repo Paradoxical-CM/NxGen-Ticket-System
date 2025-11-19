@@ -1,4 +1,5 @@
 import { UserModel } from '@app/library';
+import { Transform } from 'class-transformer';
 import {
   Column,
   DeleteDateColumn,
@@ -42,6 +43,7 @@ export class TicketModel {
 
   @ManyToOne(() => UserModel, (user) => user.id)
   @JoinColumn({ name: 'user_uuid', referencedColumnName: 'id' })
+  @Transform(({ value }) => value.username)
   user: UserModel;
 
   @Column({ type: 'text' })

@@ -19,6 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       'Bearer ',
       '',
     );
-    return await this.validation.validateAccessToken(payload.id, access_token);
+    if (await this.validation.validateAccessToken(payload.id, access_token))
+      return { ...payload };
   }
 }

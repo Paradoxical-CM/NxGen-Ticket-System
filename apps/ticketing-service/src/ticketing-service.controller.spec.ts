@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TicketingServiceController } from './ticketing-service.controller';
-import { TicketingServiceService } from './ticketing-service.service';
+import { TicketingService } from './ticketing-service.service';
 
 describe('TicketingServiceController', () => {
   let ticketingServiceController: TicketingServiceController;
@@ -8,10 +8,12 @@ describe('TicketingServiceController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [TicketingServiceController],
-      providers: [TicketingServiceService],
+      providers: [TicketingService],
     }).compile();
 
-    ticketingServiceController = app.get<TicketingServiceController>(TicketingServiceController);
+    ticketingServiceController = app.get<TicketingServiceController>(
+      TicketingServiceController,
+    );
   });
 
   describe('root', () => {
