@@ -20,7 +20,7 @@ import { Request as expressRequest, Response } from 'express';
 import { AuthenticationService } from './authentication.service';
 import { UserDto } from './dtos/user.dto';
 
-@Controller()
+@Controller('authentication')
 export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {}
 
@@ -48,13 +48,6 @@ export class AuthenticationController {
       status: HttpStatus.CREATED,
       message: response,
     };
-  }
-
-  @Get('Hello')
-  @ApiBearerAuth()
-  @UseGuards(JwtTokenValidation)
-  hello() {
-    return { message: 'Hello World' };
   }
 
   @Post('refresh')
@@ -94,5 +87,12 @@ export class AuthenticationController {
     return await this.authenticationService.invalidateRefreshToken(
       refreshToken,
     );
+  }
+
+  @Get('Hello')
+  @ApiBearerAuth()
+  @UseGuards(JwtTokenValidation)
+  hello() {
+    return { message: 'Hello World' };
   }
 }

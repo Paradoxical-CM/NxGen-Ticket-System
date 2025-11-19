@@ -21,7 +21,6 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Authentication')
     .setDescription('User Authentication API Document')
-    .setVersion('1.0')
     .addTag('Authentication')
     .addBearerAuth()
     .build();

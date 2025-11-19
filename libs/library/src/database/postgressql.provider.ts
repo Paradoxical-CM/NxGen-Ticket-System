@@ -3,6 +3,7 @@ import {
   TypeOrmModuleAsyncOptions,
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
+import { TicketModel } from './entity/ticket/ticket.entity';
 import { UserTokenModel } from './entity/user/user-token.entity';
 import { UserModel } from './entity/user/user.entity';
 
@@ -17,7 +18,7 @@ export default class PostgressqlConfig {
       username: configService.get('SQL_USER'),
       password: configService.get('SQL_PASSWORD'),
       database: configService.get('SQL_DB'),
-      entities: [UserModel, UserTokenModel],
+      entities: [UserModel, UserTokenModel, TicketModel],
       synchronize: true,
       extra: {
         trustServerCertificate: true,
