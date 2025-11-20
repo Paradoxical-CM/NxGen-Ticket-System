@@ -1,9 +1,12 @@
-import { PaginationDTO } from '@app/common';
+import { RetrieveTicketDTO } from '@app/common';
+import { createTicketDTO } from '@app/common/DTOs/create-ticket.dto';
 import { JwtTokenValidation } from '@app/guards';
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
+  Post,
   Query,
   Request,
   UseGuards,
@@ -19,18 +22,31 @@ export class TicketingServiceController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(JwtTokenValidation)
-  getHello(): string {
+  getHello(): object {
     return this.TicketingService.getHello();
   }
 
-  @Get('ticketing-records')
+  @Get('get-ticketing-records')
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiBearerAuth()
   @UseGuards(JwtTokenValidation)
   async getTicketingRecords(
     @Request() req: { user: { id: string } },
-    @Query() query: PaginationDTO,
+    @Query() searchquery: RetrieveTicketDTO,
   ) {
-    return await this.TicketingService.retrieveTickets(req.user.id, query);
+    return await this.TicketingService.retrieveTickets(
+      req.user.id,
+      searchquery,
+    );
+  }
+
+  @Post('create-ticket')
+  @ApiBearerAuth()
+  @UseGuards(JwtTokenValidation)
+  async createTicket(
+    @Request() req: { user: { id: string } },
+    @Body() form: createTicketDTO,
+  ) {
+    return await this.TicketingService.createTicket(form, req.user.id);
   }
 }
